@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/pathseg@1.2.1/pathseg.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/poly-decomp@0.3.0/build/decomp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+        <style>
+            svg { display: none; }
+        </style>
+    </head>
+
+    <body>
+        <svg viewBox="0 0 446 426" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="animated-explainers" d="M67.4898 23.5113C70.905 8.00823 86.2923 -2.03414 101.858 1.08098L422.57 65.2624C438.136 68.3776 447.986 83.4706 444.571 98.9736L377.765 402.238C374.35 417.741 358.962 427.783 343.396 424.668L22.685 360.487C7.11884 357.372 -2.73149 342.279 0.683681 326.776L67.4898 23.5113Z" fill="#F7DC00"/>
+            <path class="software-demos" fill-rule="evenodd" clip-rule="evenodd" d="M408.679 2.62389C424.189 -3.60094 441.916 4.60633 446.39 20.0872C478.166 130.008 420.185 248.038 306.925 293.424C193.664 338.809 64.6031 295.842 4.38155 197.288C-4.09995 183.422 2.14558 165.623 17.6553 159.399L408.679 2.62389Z" fill="#07EC70"/>
+            <path class="product-promos" d="M11.3615 60.2396C37.8235 8.37062 102.103 -13.8284 154.934 10.6568L572.331 204.105C625.162 228.59 646.538 290.487 620.076 342.356C593.614 394.225 529.335 416.424 476.504 391.939L59.1067 198.491C6.27578 174.006 -15.1005 112.109 11.3615 60.2396Z" fill="#C1D9D0"/>
+            <path class="keynote-videos" d="M30.4044 90.6364L461.149 1.14214C491.632 -5.19109 517.196 25.4505 505.093 53.8137L357.382 399.978C347.16 423.934 315.989 430.324 296.327 412.493L13.294 155.823C-9.9151 134.776 0.013382 96.9506 30.4044 90.6364Z" fill="#ED6630"/>
+            <path class="and-more" d="M352.136 304.867C284.833 386.364 160.957 400.428 75.4514 336.28C-10.0543 272.132 -24.8102 154.062 42.4931 72.5645C109.796 -8.93314 233.672 -22.9974 319.178 41.1511C404.684 105.3 419.44 223.369 352.136 304.867Z" fill="#F8EED3"/>
+        </svg>
+        <script>
+
+            // module aliases
+            var Engine = Matter.Engine,
+                Render = Matter.Render,
+                Runner = Matter.Runner,
+                Bodies = Matter.Bodies,
+                Composite = Matter.Composite;
+
+            // create an engine
+            var engine = Engine.create();
+
+            engine.world.gravity.y = .25;
+
+            // create a renderer
+            var render = Render.create({
+                element: document.body,
+                engine: engine,
+                options: {
+                    width: 1200,
+                    height: 600,
+                    pixelRatio: 2,
+                    wireframes: false,
+                    background: '#FCB912'
+                }
+            });
+
+            const options = {
+                scaleX: 0.5,
+                scaleY: 0.5
+            }
+
+            const collisionCategories = {
+                ground : 0x0001,
+                object: 0x0002
+            }
+
+            const bodies = [
+                Bodies.rectangle(600, 600, 1200, 30, { 
+                    isStatic: true,
+                    collisionFilter: {
+                        category: collisionCategories.ground
+                    },
+                }), // Ground
+                ...[...document.querySelectorAll(".animated-explainers")].map(path => {
+                    const body = Matter.Bodies.fromVertices(
+                        150, 300, Matter.Svg.pathToVertices(path), {
+                            isStatic: true,
+                            restitution: 1.5,
+                            collisionFilter: {
+                                category: collisionCategories.object,
+                                mask: collisionCategories.ground
+                            },
+                            render: {
+                                sprite: {
+                                    texture: './png/animatedExplainers.png',
+                                    yScale: 0.26,
+                                    xScale: 0.26
+                                },
+                                fillStyle: '#F7DC00',
+                            }
+                        }, true
+                    );
+                    Matter.Body.scale(body, options.scaleX, options.scaleY);
+                    return body;
+                }),
+                ...[...document.querySelectorAll(".software-demos")].map(path => {
+                    const body = Matter.Bodies.fromVertices(
+                        350, 300, Matter.Svg.pathToVertices(path), {
+                            isStatic: true,
+                            restitution: 1.5,
+                            collisionFilter: {
+                                category: collisionCategories.object,
+                                mask: collisionCategories.ground
+                            },
+                            render: {
+                                sprite: {
+                                    texture: './png/softwareDemos.png',
+                                    yScale: 0.26,
+                                    xScale: 0.26
+                                },
+                                fillStyle: '#07EC70',
+                                strokeStyle: '#07EC70'
+                            }
+                        }, true
+                    );
+                    Matter.Body.scale(body, options.scaleX, options.scaleY);
+                    return body;
+                }),
+                ...[...document.querySelectorAll(".product-promos")].map(path => {
+                    const body = Matter.Bodies.fromVertices(
+                        630, 300, Matter.Svg.pathToVertices(path), {
+                            isStatic: true,
+                            restitution: 1.5,
+                            collisionFilter: {
+                                category: collisionCategories.object,
+                                mask: collisionCategories.ground
+                            },
+                            render: {
+                                sprite: {
+                                    texture: './png/productPromos.png',
+                                    yScale: 0.26,
+                                    xScale: 0.26
+                                },
+                                fillStyle: '#C1D9D0',
+                            }
+                        }, true
+                    );
+                    Matter.Body.scale(body, options.scaleX, options.scaleY);
+                    return body;
+                }),
+                ...[...document.querySelectorAll(".keynote-videos")].map(path => {
+                    const body = Matter.Bodies.fromVertices(
+                        860, 300, Matter.Svg.pathToVertices(path), {
+                            isStatic: true,
+                            restitution: 1.5,
+                            collisionFilter: {
+                                category: collisionCategories.object,
+                                mask: collisionCategories.ground
+                            },
+                            render: {
+                                sprite: {
+                                    texture: './png/keynoteVideos.png',
+                                    yScale: 0.26,
+                                    xScale: 0.26
+                                },
+                                fillStyle: '#ED6630',
+                            }
+                        }, true
+                    );
+                    Matter.Body.scale(body, options.scaleX, options.scaleY);
+                    return body;
+                }),
+                ...[...document.querySelectorAll(".and-more")].map(path => {
+                    const body = Matter.Bodies.fromVertices(
+                        1070, 300, Matter.Svg.pathToVertices(path), {
+                            isStatic: true,
+                            restitution: 1.5,
+                            collisionFilter: {
+                                category: collisionCategories.object,
+                                category: collisionCategories.object
+                            },
+                            render: {
+                                sprite: {
+                                    texture: './png/andMore.png',
+                                    yScale: 0.26,
+                                    xScale: 0.26
+                                },
+                                fillStyle: '#F8EED3',
+                            }
+                        }, true
+                    );
+                    Matter.Body.scale(body, options.scaleX, options.scaleY);
+                    return body;
+                }),
+            ];
+            console.log(Matter.Body);
+
+            // add all of the bodies to the world
+            Composite.add(engine.world, bodies);
+
+            // run the renderer
+            Render.run(render);
+
+            // create runner
+            var runner = Runner.create();
+
+            // run the engine
+            Runner.run(runner, engine);
+
+            $(document).ready( function() {
+                $('#gravity').click( function() {
+
+                    for (let i = 1; i < bodies.length; i++) {
+                        Matter.Body.setStatic(bodies[i], false);
+                    }
+
+                });
+            });
+
+        </script>
+        <div>
+            <button id="gravity" type="button">Enable gravity</button>
+        </div>
+
+    </body>
+
+</html>
